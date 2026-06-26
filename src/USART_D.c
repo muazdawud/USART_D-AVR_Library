@@ -30,6 +30,7 @@ volatile static char rx_buf[RX_BUFFER];
 volatile uint8_t txReadPtr = 0;
 volatile uint8_t txWritePtr = 0;
 
+uint8_t rxEnableFlag;
 volatile uint8_t rxReadPtr;
 volatile uint8_t rx_end_flag;
 volatile static uint8_t timeout_count;
@@ -146,28 +147,70 @@ char USART_getByte(void){
 }
 
  
+// const char* USART_getString(void){ 
+
+// 	if(!rxEnableFlag){
+
+// 		USART_flush();
+
+// 		if(!rx_end_flag){
+// 			rxEnableFlag = 1;
+// 		}
+// 		rx_end_flag = 0;
+// 		rxReadPtr = 0;
+// 		rx_buf[0] = '\0'; 
+// 		timeout_count = 0;
+// 		TCNT2 = 0;
+
+// 		_UCSR_2_SFR |= (1 << _RXCI_);
+// 		initTIMER_2();
+
+// 		if(rx_end_flag){
+
+// 			rxEnableFlag = 0;
+// 			_UCSR_2_SFR &= ~(1 << _RXCI_);
+// 			_TCCR2B_ = 0;
+// 			rx_buf[rxReadPtr] = '\0';
+
+// 			//debug output
+// 			// USART_print("INPUT FROM HEADER = %s.\r\n", rx_buf);
+// 			return (const char*)rx_buf;
+// 		}
+// 	}
+
+// 	return "";
+// }
+
+
 const char* USART_getString(void){ 
 
-	USART_flush();
+    if(!rxEnableFlag){
+        USART_flush();
 
-	rx_end_flag = 0;
-	rxReadPtr = 0;
-	rx_buf[0] = '\0'; 
-	timeout_count = 0;
-	TCNT2 = 0;
+        rx_end_flag = 0;
+        rxReadPtr = 0;
+        rx_buf[0] = '\0'; 
+        timeout_count = 0;
+        TCNT2 = 0;
+        
+        rxEnableFlag = 1;
 
-	_UCSR_2_SFR |= (1 << _RXCI_);
-	initTIMER_2();
+        _UCSR_2_SFR |= (1 << _RXCI_);
+        initTIMER_2();
+    }
 
-	while(!rx_end_flag){};
+    if (rxEnableFlag && rx_end_flag) {
+        
+        _UCSR_2_SFR &= ~(1 << _RXCI_);
+        _TCCR2B_ = 0;
 
-	_UCSR_2_SFR &= ~(1 << _RXCI_);
-	_TCCR2B_ = 0;
-	rx_buf[rxReadPtr] = '\0';
+        rx_buf[rxReadPtr] = '\0';
+        rxEnableFlag = 0;
 
-	//debug output
-	// USART_print("INPUT FROM HEADER = %s.\r\n", rx_buf);
-	return (const char*)rx_buf;
+        return (const char*)rx_buf;
+    }
+
+    return "";
 }
 
  
