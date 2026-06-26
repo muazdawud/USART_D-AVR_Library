@@ -2,6 +2,8 @@
 
 **USART_D** is a high-performance, interrupt-driven USART communication library specifically designed for 8-bit AVR micro-controllers. It offers efficient memory management through circular buffers and a flexible abstraction layer that supports both modern (e.g., ATmega328P) and legacy (e.g., ATmega8) AVR architectures. It provides a robust alternative to standard blocking I/O by utilizing circular buffers and background interrupt processing, allowing your application logic to remain responsive during heavy serial communication.
 
+> *Check [Medium](https://medium.com/@muazdawud307_31605/deep-dive-into-usart-d-a-high-performance-avr-communication-library-770d47e9cd9f) platform for a more technical breakdown on how the library functions*
+
 > *See `/examples` directory for comprehensive implementation templates.*
 
 ---

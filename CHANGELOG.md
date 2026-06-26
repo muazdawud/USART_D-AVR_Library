@@ -5,6 +5,16 @@ All notable changes to the **USART_D Library** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+---
+
+## [1.0.1] - 2026-06-26
+### Refactored
+- Re-implemented internal logic for `USART_getString` to ensure a non-blocking, fully interrupt-driven USART Rx communication.
+- Fully non-blocking.
+
+Read the full technical breakdown [here](https://medium.com/@muazdawud307_31605/deep-dive-into-usart-d-a-high-performance-avr-communication-library-770d47e9cd9f).
+
 ---
 
 ## [1.0.0] - 2026-04-13
