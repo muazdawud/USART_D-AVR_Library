@@ -12,6 +12,7 @@
 
 
 #include<avr/io.h>
+#include <string.h>
 #include<util/delay.h>
 #include<avr/interrupt.h>
 #include<avr/power.h>
@@ -41,10 +42,13 @@ int main(void){
         USART_print("My account balance is %d.\r\n", neg);
         USART_print("\r\n");
 
-        //const char* input = ;
+        const char* input = USART_getString();
 
-        USART_print("INPUT =  ");
-        USART_print("%s.\r\n\r\n", USART_getString());
+        if(strlen(input) != 0){
+        
+            USART_print("INPUT =  ");
+            USART_print("%s.\r\n\r\n", input);
+        }
 
         _delay_ms(3000);
     }
