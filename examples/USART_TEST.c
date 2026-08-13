@@ -29,6 +29,8 @@ int main(void){
     int8_t neg = -123;
     char name [] = "Sadik";
 
+    const char* input = "";
+
     USART_begin();
 
     USART_print("\r\n==== USART_TEST ====\r\n");
@@ -42,15 +44,20 @@ int main(void){
         USART_print("My account balance is %d.\r\n", neg);
         USART_print("\r\n");
 
-        const char* input = USART_getString();
+        if(!USART_getCheck()){
+
+            input = USART_getString();
+        }
 
         if(strlen(input) != 0){
         
             USART_print("INPUT =  ");
             USART_print("%s.\r\n\r\n", input);
+
+            _delay_ms(5000);
         }
 
-        _delay_ms(3000);
+        // _delay_ms(3000);
     }
 
     return 0;

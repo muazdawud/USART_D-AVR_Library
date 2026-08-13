@@ -9,7 +9,14 @@
  * See the LICENSE file in the project root for full license information.
  */
 
+/* 
+   ** KEY NOTE**
 
+	** What I have to do is seperate the function that kick starts
+	** the RX transmission from the one that returns the complete
+	** recieve buffer
+
+	*/
 
 #include<avr/io.h>
 #include<avr/interrupt.h>
@@ -30,16 +37,18 @@ volatile static char rx_buf[RX_BUFFER];
 volatile uint8_t txReadPtr = 0;
 volatile uint8_t txWritePtr = 0;
 
-uint8_t rxEnableFlag;
-volatile uint8_t rxReadPtr;
-volatile uint8_t rx_end_flag;
-volatile static uint8_t timeout_count;
+uint8_t rxEnableFlag = 0;
+volatile uint8_t rxReadPtr = 0;
+volatile uint8_t rx_end_flag = 0;
+volatile static uint8_t timeout_count = 0;
  
 
 void USART_begin(void);
 char USART_receive(void);
 void USART_flush(void);
+int USART_getCheck(void);
 static void printNumber(int16_t num);
+const char* USART_getString(void);
 static inline void transferByte(char buffer);
 void USART_print(const char buffer[], ...);
 
@@ -110,8 +119,7 @@ static inline void initTIMER_2(void) {
 
     _OCR2_ = _OCR_VAL_;
 
-	_TCCR2_ |= (1 << WGM21);
-	_TCCR2B_ |= (1 << CS22) | (1 << CS21) | (1 << CS20);
+	_TCCR2_ |= (1 << WGM21); 
 
 	_TIMSK_ |= (1 << _OCIE_);
 }
@@ -130,6 +138,8 @@ void USART_begin(void){
 
 	_UCSR_2_SFR |= (1 << _TXE_) | (1 << _RXE_);
 	_UCSR_3_SFR |= (1 << _UCSZ1_) | (1 << _UCSZ0_);
+
+	initTIMER_2();
 	
 	sei();
 }
@@ -146,71 +156,50 @@ char USART_getByte(void){
 	return receivedByte;
 }
 
- 
-// const char* USART_getString(void){ 
-
-// 	if(!rxEnableFlag){
-
-// 		USART_flush();
-
-// 		if(!rx_end_flag){
-// 			rxEnableFlag = 1;
-// 		}
-// 		rx_end_flag = 0;
-// 		rxReadPtr = 0;
-// 		rx_buf[0] = '\0'; 
-// 		timeout_count = 0;
-// 		TCNT2 = 0;
-
-// 		_UCSR_2_SFR |= (1 << _RXCI_);
-// 		initTIMER_2();
-
-// 		if(rx_end_flag){
-
-// 			rxEnableFlag = 0;
-// 			_UCSR_2_SFR &= ~(1 << _RXCI_);
-// 			_TCCR2B_ = 0;
-// 			rx_buf[rxReadPtr] = '\0';
-
-// 			//debug output
-// 			// USART_print("INPUT FROM HEADER = %s.\r\n", rx_buf);
-// 			return (const char*)rx_buf;
-// 		}
-// 	}
-
-// 	return "";
-// }
-
 
 const char* USART_getString(void){ 
 
-    if(!rxEnableFlag){
+	if(!rxEnableFlag && rx_end_flag){
+
+    	rx_end_flag = 0;
+    	rxReadPtr = 0;
+    	
+    	return (const char*)rx_buf;
+    }
+
+    if(!rxEnableFlag && !rxReadPtr){
         USART_flush();
 
-        rx_end_flag = 0;
-        rxReadPtr = 0;
+        rx_end_flag = 0; 
         rx_buf[0] = '\0'; 
+        rxReadPtr = 0;
         timeout_count = 0;
         TCNT2 = 0;
         
         rxEnableFlag = 1;
 
         _UCSR_2_SFR |= (1 << _RXCI_);
-        initTIMER_2();
+        
+        /* Clock Select for TIMER2 */
+        _TCCR2B_ |= (1 << CS22) | (1 << CS21) | (1 << CS20);
     }
 
-    if (rxEnableFlag && rx_end_flag) {
-        
-        _UCSR_2_SFR &= ~(1 << _RXCI_);
+    return "";
+}
+
+
+int USART_getCheck(void){
+
+	if(rxEnableFlag && rx_end_flag){
+
+		_UCSR_2_SFR &= ~(1 << _RXCI_);
         _TCCR2B_ = 0;
 
         rx_buf[rxReadPtr] = '\0';
         rxEnableFlag = 0;
+	}
 
-        return (const char*)rx_buf;
-    }
-
-    return "";
+	return (rxEnableFlag);
 }
 
  

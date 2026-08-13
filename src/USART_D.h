@@ -27,6 +27,8 @@ void USART_flush(void);
 
 const char* USART_getString(void);
 
+int USART_getCheck(void);
+
 void USART_print(const char buffer[], ...);
 
 

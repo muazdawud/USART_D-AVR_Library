@@ -8,12 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.1] - 2026-06-26
-### Refactored
-- Re-implemented internal logic for `USART_getString` to ensure a non-blocking, fully interrupt-driven USART Rx communication.
-- Fully non-blocking.
+## [1.1.0] - 2026-08-13
+
+This is the **feature upgrade release** which focused on delivering non-blocking `RX` communication with a host.
 
 Read the full technical breakdown [here](https://medium.com/@muazdawud307_31605/deep-dive-into-usart-d-a-high-performance-avr-communication-library-770d47e9cd9f).
+
+### Added
+- Added a new `USART_getCheck` function which handles the EOEvent of the `RX` communication.
+- Fully non-blocking.
+
+### Refactored
+- Re-implemented internal logic for `USART_getString` to ensure a non-blocking, fully interrupt-driven USART Rx communication.
+
+### Changed
+- The main must first call the `USART_getCheck` to check if there is no ongoing USART `RX` communication, which is always true at the beginning of a session.
+- `TIMER2` is automatically active (but) without a clock prescale at the first call of `USART_begin`.
+- `TIMER2` clock prescaler is being set at the begining of the transmission to optimize function call latency.
+- Non-Blocking operations usually come with a cost, for this, after getting back the array as and only as a string literal, you'll have to manually load the return buffer into the stack if you need to perform string operations.
 
 ---
 
