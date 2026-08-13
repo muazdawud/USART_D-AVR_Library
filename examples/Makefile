@@ -31,7 +31,7 @@ LIBDIR = ../src
 
 PROGRAMMER_TYPE = arduino
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
-PROGRAMMER_ARGS = -b 115200 -P COM7
+PROGRAMMER_ARGS = -b 115200 -P COM3
 
 ##########------------------------------------------------------##########
 ##########                  Program Locations                   ##########
